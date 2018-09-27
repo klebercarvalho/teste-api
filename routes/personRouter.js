@@ -6,7 +6,7 @@ import {
   personCreate, 
   personUpdate, 
   personDelete 
-} from '../controllers/person';
+} from '../controllers/personController';
 
 const router = express.Router()
 

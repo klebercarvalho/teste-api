@@ -1,9 +1,18 @@
 import mongoose from 'mongoose';
 
 export const personSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  password: String,
+  name: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
   cpf: String,
   phone: String,
   address: String,
