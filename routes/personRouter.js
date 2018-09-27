@@ -5,7 +5,8 @@ import {
   personListOne, 
   personCreate, 
   personUpdate, 
-  personDelete 
+  personDelete,
+  personPatch,
 } from '../controllers/personController';
 
 const router = express.Router()
@@ -19,5 +20,7 @@ router.post('/', personCreate);
 router.put('/:id', personUpdate);
 
 router.delete('/:id', personDelete);
+
+router.patch('/:id', personPatch);
 
 export default router;
