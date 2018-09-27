@@ -1,5 +1,6 @@
 import express from 'express';
 
+import checkObjectID from '../middlewares/checkObjectID';
 import { 
   personListAll, 
   personListOne, 
@@ -10,6 +11,8 @@ import {
 } from '../controllers/personController';
 
 const router = express.Router()
+
+router.use('/:id', checkObjectID);
 
 router.get('/', personListAll);
 
