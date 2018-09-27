@@ -46,6 +46,7 @@ export const personCreate = async (req, res, next) => {
 
 export const personUpdate = async (req, res, next) => {
   const { id } = req.params;
+  const { name, email, password, cpf, phone, address } = req.body;
   try {
     const person = await Person.findOne({ _id: id });
 
@@ -90,4 +91,18 @@ export const personDelete = async (req, res, next) => {
 };
 
 export const personPatch = async (req, res, next) => {
+  const { id } = req.params;
+  const { name, email, password, cpf, phone, address } = req.body;
+
+  try {
+    const person = await Person.findOne({ _id: id }).exec();
+    if (!person) throw new Error('Not Found.');
+    
+    const set = { name, email, password, cpf, phone, address };
+    const result = await Person.updateOne({ _id: id }, { $set: set });
+    res.status(200).send(result);
+  } catch(err) {
+    res.status(400).send(err);
+  }
 }
+
