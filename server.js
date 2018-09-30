@@ -1,9 +1,9 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import session from 'express-session';
 import helmet from 'helmet';
 import createHttpError from 'http-errors';
 import dotenv from 'dotenv';
+import bodyParser from 'body-parser';
 
 dotenv.config('.env');
 
@@ -35,11 +35,11 @@ connect(mongoURL, mongoDatabase)
         saveUninitialized: true
       }))
     }
-    server.use(express.json());
-    server.use(express.urlencoded({ extended: false }));
+    server.use(bodyParser.json());
+    server.use(bodyParser.urlencoded({ extended: false }));
 
-    server.use('/person', personRouter);
-    server.use('/discussion', discussionRouter);
+    server.use('/people', personRouter);
+    server.use('/discussions', discussionRouter);
 
     server.listen(port, err => {
       if (err) {
