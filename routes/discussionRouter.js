@@ -1,25 +1,26 @@
 import express from 'express';
 
+import {
+  discussionListAll,
+  discussionListOne,
+  discussionCreate,
+  discussionUpdate,
+  discussionDelete,
+  discussionPatch,
+} from '../controllers/discussionController';
+
 const router = express.Router()
 
-router.get('/', (req, res, next) => {
-  res.status(200).send('GET all discussions');
-});
+router.get('/', discussionListAll);
 
-router.get('/:id', (req, res, next) => {
-  res.status(200).send('GET the expecified discussion');
-});
+router.get('/:id', discussionListOne);
 
-router.post('/', (req, res, next) => {
-  res.status(200).send('POST a new discussion');
-});
+router.post('/', discussionCreate);
 
-router.put('/:id', (req, res, next) => {
-  res.status(200).send('PUT new information on the expecified discussion');
-});
+router.put('/:id', discussionUpdate);
 
-router.delete('/:id', (req, res, next) => {
-  res.status(200).send('DELETE the expecified discussion');
-});
+router.delete('/:id', discussionDelete);
+
+router.patch('/:id', discussionPatch);
 
 export default router;

@@ -1,9 +1,9 @@
-// import mongoose from 'mongoose';
+import Joi from 'joi';
 
-// const { model, Schema } = mongoose;
+//import personSchema from './person';
 
-// export const discussionSchema = new Schema({
-  
-// });
+export const discussionSchema = Joi.object({
+  _id: Joi.string(),
+  participants: Joi.array().required().min(2),
+});
 
-// export default Discussion = model('Discussion', discussionSchema);
