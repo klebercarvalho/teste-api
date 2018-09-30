@@ -10,7 +10,9 @@ export const personListAll = async (req, res, next) => {
     const personList = await db.collection('people')
       .find({})
       .toArray();
-    res.status(200).send(personList);
+    res.status(200);
+    res.body = { personList };
+    next();
   } catch (err) {
     next(err);
   }
@@ -24,10 +26,13 @@ export const personListOne = async (req, res, next) => {
     const person = await db.collection('people').findOne({ _id: ObjectId(id) });
 
     if (person) {
-      res.status(200).send(person);
+      res.status(200);
+      res.body = person;
+      next();
     } else {
-      res.status(404).send('Person not found');
+      return res.status(404).send('Person not found');
     }
+    next();
   } catch (err) {
     next(err);
   }
