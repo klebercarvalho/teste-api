@@ -68,9 +68,24 @@ export const discussionUpdate = async (req, res, next) => {
   const { db } = req.app.locals;
   const { id } = req.params;
   const { participants } = req.body;
-  //const discussion = { participants };
 
   const tuple = new Set(participants); // Handle duplicity
+  if (tuple.size < 2) {
+    try {
+      const discussion = await db.collection('discussions').findOne({ _id: ObjectId(id) });
+      if (discussion) {
+        if (await db.collection('discussions').deleteOne(discussion)) {
+          return res.status(307).send('Group is deleted. Minimum participants was not met.');
+        } else {
+          return res.status(400).send('Could not delete');
+        }
+      } else {
+        return res.status(404).send('Discussion not found');
+      }
+    } catch (err) {
+      next(err);
+    }
+  } 
 
   const promises = Array.from(tuple).map((p) => {
     return new Promise((resolve, reject) => {
@@ -84,7 +99,6 @@ export const discussionUpdate = async (req, res, next) => {
     .then(async (people) => {
       try {
         const discussion = { participants: people.map(p => ({ _id: p._id, name: p.name, email: p.email })) };
-        console.log(discussion);
         const found = await db.collection('discussions').findOne({ _id: ObjectId(id) });
         if (!found) throw new Error('Not Found.');
 
@@ -121,27 +135,4 @@ export const discussionDelete = async (req, res, next) => {
     next(err);
   }
 };
-
-export const discussionPatch = async (req, res, next) => {
-  const { db } = req.app.locals;
-  const { id } = req.params;
-  const { name, email, password, cpf, phone, address } = req.body;
-  const fields = { name, email, password, cpf, phone, address };
-
-  const set = Object.entries(fields).reduce((acc, item) => {
-    const [key, value] = item;
-    return (value ? { ...acc, [key]: value } : acc);
-  }, {});
-
-  try {
-    const discussion = await db.collection('discussions').findOne({ _id: ObjectId(id) });
-    if (!discussion) throw new Error('Not Found');
-
-    const result = await db.collection('discussions').updateOne({ _id: discussion._id }, { $set: set });
-
-    res.status(200).send(result);
-  } catch(err) {
-    res.status(400).send(err);
-  }
-}
 

@@ -6,7 +6,6 @@ import {
   discussionCreate,
   discussionUpdate,
   discussionDelete,
-  discussionPatch,
 } from '../controllers/discussionController';
 
 const router = express.Router()
@@ -20,7 +19,5 @@ router.post('/', discussionCreate);
 router.put('/:id', discussionUpdate);
 
 router.delete('/:id', discussionDelete);
-
-router.patch('/:id', discussionPatch);
 
 export default router;
