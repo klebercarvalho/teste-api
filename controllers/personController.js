@@ -1,19 +1,28 @@
-import Person, { personSchema } from '../models/person';
-import mongoose from 'mongoose';
+import { ObjectId } from 'mongodb';
+import Joi from 'joi';
+
+import { personSchema } from '../models/person';
 
 export const personListAll = async (req, res, next) => {
+  const { db } = req.app.locals;
+
   try {
-    const personList = await Person.find().exec();
+    const personList = await db.collection('people')
+      .find({})
+      .toArray();
     res.status(200).send(personList);
   } catch (err) {
-     next(err);
+    next(err);
   }
 };
 
 export const personListOne = async (req, res, next) => {
+  const { db } = req.app.locals;
   const { id } = req.params;
+
   try {
-    const person = await Person.findOne({ _id: id });
+    const person = await db.collection('people').findOne({ _id: ObjectId(id) });
+
     if (person) {
       res.status(200).send(person);
     } else {
@@ -25,43 +34,46 @@ export const personListOne = async (req, res, next) => {
 };
 
 export const personCreate = async (req, res, next) => {
+  const { db } = req.app.locals;
   const { name, email, password, cpf, phone, address } = req.body;
-  const person = new Person({
+  const person = {
     name,
     email,
     password,
     cpf,
     phone,
     address,
-  });
+  };
 
   try {
-    await person.validate();
-    const result = await person.save();
-    res.status(200).send(result);
+    await Joi.validate(person, personSchema);
+    const result = await db.collection('people').insertOne(person);
+    res.status(201).end();
   } catch(err) {
     return res.status(400).send(err.message);
   }
 }
 
 export const personUpdate = async (req, res, next) => {
+  const { db } = req.app.locals;
   const { id } = req.params;
   const { name, email, password, cpf, phone, address } = req.body;
+  const person = {
+    name,
+    email,
+    password,
+    cpf,
+    phone,
+    address,
+  };
+
   try {
-    const person = await Person.findOne({ _id: id });
+    const found = await db.collection('people').findOne({ _id: ObjectId(id) });
+    if (!found) throw new Error('Not Found.');
 
-    if (!person) throw new Error('Not Found.');
+    await Joi.validate(person, personSchema);
 
-    const newPerson = Object.assign(person, {
-      name,
-      email,
-      password,
-      cpf,
-      phone,
-      address,
-    });
-    await newPerson.validate();
-    const result = await Person.updateOne({ _id: id }, newPerson);
+    const result = await db.collection('people').updateOne({ _id: found._id }, { $set: person });
 
     res.status(200).send(result);
   } catch(err) {
@@ -73,11 +85,13 @@ export const personUpdate = async (req, res, next) => {
 }
 
 export const personDelete = async (req, res, next) => {
+  const { db } = req.app.locals;
   const { id } = req.params;
+
   try {
-    const person = await Person.findOne({ _id: id }).exec();
+    const person = await db.collection('people').findOne({ _id: ObjectId(id) });
     if (person) {
-      if (await Person.deleteOne(person)) {
+      if (await db.collection('people').deleteOne(person)) {
         return res.status(200).send();
       } else {
         return res.status(400).send('Could not delete');
@@ -91,15 +105,22 @@ export const personDelete = async (req, res, next) => {
 };
 
 export const personPatch = async (req, res, next) => {
+  const { db } = req.app.locals;
   const { id } = req.params;
   const { name, email, password, cpf, phone, address } = req.body;
+  const fields = { name, email, password, cpf, phone, address };
+
+  const set = Object.entries(fields).reduce((acc, item) => {
+    const [key, value] = item;
+    return (value ? { ...acc, [key]: value } : acc);
+  }, {});
 
   try {
-    const person = await Person.findOne({ _id: id }).exec();
-    if (!person) throw new Error('Not Found.');
-    
-    const set = { name, email, password, cpf, phone, address };
-    const result = await Person.updateOne({ _id: id }, { $set: set });
+    const person = await db.collection('people').findOne({ _id: ObjectId(id) });
+    if (!person) throw new Error('Not Found');
+
+    const result = await db.collection('people').updateOne({ _id: person._id }, { $set: set });
+
     res.status(200).send(result);
   } catch(err) {
     res.status(400).send(err);

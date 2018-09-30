@@ -1,10 +1,14 @@
-import mongoose from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 const checkObjectID = (req, res, next) => {
   const { id } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).send('Invalid id.');
+
+  if (id) {
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).send('Invalid id.');
+    }
   }
+
   next();
 }
 
