@@ -5,7 +5,10 @@ const checkObjectID = (req, res, next) => {
 
   if (id) {
     if (!ObjectId.isValid(id)) {
-      return res.status(400).send('Invalid id.');
+      return res.status(400).json({
+        success: 'fail',
+        message: 'Invalid id.'
+      });
     }
   }
 

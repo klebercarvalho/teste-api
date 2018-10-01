@@ -1,5 +1,7 @@
 import express from 'express';
 
+import checkObjectID from '../middlewares/checkObjectID';
+
 import {
   discussionListAll,
   discussionListOne,
@@ -10,6 +12,10 @@ import {
 
 const router = express.Router()
 
+// Before Middlewares
+router.use('/:id', checkObjectID);
+
+// Routes
 router.get('/', discussionListAll);
 
 router.get('/:id', discussionListOne);

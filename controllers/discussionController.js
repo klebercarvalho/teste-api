@@ -11,7 +11,10 @@ export const discussionListAll = async (req, res, next) => {
     const discussionList = await db.collection('discussions')
       .find({})
       .toArray();
-    res.status(200).send(discussionList);
+    res.status(200).json({
+      status: 'success',
+      data: discussionList
+    });
   } catch (err) {
     next(err);
   }
@@ -25,9 +28,15 @@ export const discussionListOne = async (req, res, next) => {
     const discussion = await db.collection('discussions').findOne({ _id: ObjectId(id) });
 
     if (discussion) {
-      res.status(200).send(discussion);
+      res.status(200).json({
+        status: 'success',
+        data: discussion
+      });
     } else {
-      res.status(404).send('Discussion not found');
+      res.status(404).json({
+        status: 'fail',
+        message: 'Discussion not found'
+      });
     }
   } catch (err) {
     next(err);
@@ -56,12 +65,21 @@ export const discussionCreate = (req, res, next) => {
         await Joi.validate(discussion, discussionSchema);
 
         const result = await db.collection('discussions').insertOne(discussion);
-        res.status(201).send(result);
+        res.status(201).json({
+          status: 'success',
+          data: null
+        });
       } catch(err) {
-        return res.status(400).send(err.message);
+        return res.status(400).json({
+          status: 'fail',
+          message: err.message
+        });
       }
     })
-    .catch(err => res.status(400).send('Invalid participant'));
+    .catch(err => res.status(400).json({
+      status: 'fail',
+      message: 'Invalid participant'
+    }));
 }
 
 export const discussionUpdate = async (req, res, next) => {
@@ -75,12 +93,21 @@ export const discussionUpdate = async (req, res, next) => {
       const discussion = await db.collection('discussions').findOne({ _id: ObjectId(id) });
       if (discussion) {
         if (await db.collection('discussions').deleteOne(discussion)) {
-          return res.status(307).send('Group is deleted. Minimum participants was not met.');
+          return res.status(307).json({
+            status: 'success',
+            message: 'Group is deleted. Minimum participants was not met.',
+          });
         } else {
-          return res.status(400).send('Could not delete');
+          return res.status(400).json({
+            status: 'fail',
+            message: 'Could not delete'
+          });
         }
       } else {
-        return res.status(404).send('Discussion not found');
+        return res.status(404).json({
+          status: 'fail',
+          message: 'Discussion not found'
+        });
       }
     } catch (err) {
       next(err);
@@ -100,20 +127,32 @@ export const discussionUpdate = async (req, res, next) => {
       try {
         const discussion = { participants: people.map(p => ({ _id: p._id, name: p.name, email: p.email })) };
         const found = await db.collection('discussions').findOne({ _id: ObjectId(id) });
-        if (!found) throw new Error('Not Found.');
+        if (!found) throw new Error('Discussion Not Found.');
 
         await Joi.validate(discussion, discussionSchema);
 
         const result = await db.collection('discussions').updateOne({ _id: found._id }, { $set: discussion });
-        res.status(201).send(result);
+        res.status(200).json({
+          status: 'success',
+          data: null
+        });
       } catch(err) {
-        if (err.message === 'Not Found.') {
-          return res.status(404).send(err.message);
+        if (err.message === 'Discussion Not Found.') {
+          res.status(404);
+        } else {
+          res.status(400);
         }
-        return res.status(400).send(err.message);
+
+        return res.json({
+            status: 'fail',
+            message: err.message
+        });
       }
     })
-    .catch(err => res.status(400).send('Invalid participant'));
+    .catch(err => res.status(400).json({
+      status: 'fail',
+      message: 'Invalid participant'
+    }));
 }
 
 export const discussionDelete = async (req, res, next) => {
@@ -124,12 +163,21 @@ export const discussionDelete = async (req, res, next) => {
     const discussion = await db.collection('discussions').findOne({ _id: ObjectId(id) });
     if (discussion) {
       if (await db.collection('discussions').deleteOne(discussion)) {
-        return res.status(200).send();
+        return res.status(200).json({
+          status: 'success',
+          data: null
+        });
       } else {
-        return res.status(400).send('Could not delete');
+        return res.status(400).json({
+          status: 'fail',
+          message: 'Could not delete'
+        });
       }
     } else {
-      return res.status(404).send('Discussion not found');
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Discussion not found'
+      });
     }
   } catch (err) {
     next(err);
