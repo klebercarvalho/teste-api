@@ -11,11 +11,17 @@ const protectPassword = (req, res, next) => {
       return removePass(item);
     });
 
-    res.send(protectedBody);
+    res.json({
+      status: 'success',
+      data: protectedBody,
+    });
   } else {
     const protectedBody = removePass(body);
 
-    res.json(protectedBody);
+    res.json({
+      status: 'success',
+      data: protectedBody,
+    });
   }  
 }
 

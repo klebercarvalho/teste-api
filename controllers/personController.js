@@ -30,7 +30,10 @@ export const personListOne = async (req, res, next) => {
       res.body = person;
       next();
     } else {
-      return res.status(404).send('Person not found');
+      return res.status(404).json({
+        status: 'fail',
+        message:'Person not found' 
+      });
     }
     next();
   } catch (err) {
@@ -52,10 +55,17 @@ export const personCreate = async (req, res, next) => {
 
   try {
     await Joi.validate(person, personSchema);
+
     const result = await db.collection('people').insertOne(person);
-    res.status(201).end();
+    res.status(201).json({
+      status: 'success',
+      message:'Person was created' 
+    });
   } catch(err) {
-    return res.status(400).send(err.message);
+    return res.status(400).send({
+      status: 'fail',
+      message: err.message,
+    });
   }
 }
 
@@ -74,7 +84,7 @@ export const personUpdate = async (req, res, next) => {
 
   try {
     const found = await db.collection('people').findOne({ _id: ObjectId(id) });
-    if (!found) throw new Error('Not Found.');
+    if (!found) throw new Error('Person Not Found.');
 
     await Joi.validate(person, personSchema);
 
@@ -82,10 +92,15 @@ export const personUpdate = async (req, res, next) => {
 
     res.status(200).send(result);
   } catch(err) {
-    if (err.message === 'Not Found.') {
-      return res.status(404).send(err.message);
+    if (err.message === 'Person Not Found.') {
+      res.status(404);
+    } else {
+      res.status(400);
     }
-    return res.status(400).send(err.message);
+    return res.json({
+        status: 'fail',
+        message: err.message,
+      });
   }
 }
 
@@ -97,12 +112,21 @@ export const personDelete = async (req, res, next) => {
     const person = await db.collection('people').findOne({ _id: ObjectId(id) });
     if (person) {
       if (await db.collection('people').deleteOne(person)) {
-        return res.status(200).send();
+        return res.status(200).json({
+          status: 'success',
+          data: null,
+        });
       } else {
-        return res.status(400).send('Could not delete');
+        return res.status(400).json({
+          status: 'fail',
+          message: 'Could not delete'
+        });
       }
     } else {
-      return res.status(404).send('Person not found');
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Person not found'
+      });
     }
   } catch (err) {
     next(err);
@@ -122,13 +146,19 @@ export const personPatch = async (req, res, next) => {
 
   try {
     const person = await db.collection('people').findOne({ _id: ObjectId(id) });
-    if (!person) throw new Error('Not Found');
+    if (!person) throw new Error('Person Not Found');
 
     const result = await db.collection('people').updateOne({ _id: person._id }, { $set: set });
 
-    res.status(200).send(result);
+    res.status(200).json({
+      status: 'success',
+      data: null,
+    });
   } catch(err) {
-    res.status(400).send(err);
+    res.status(400).json({
+      status: 'fail',
+      message: 'Person Not Found'
+    });
   }
 }
 
