@@ -18,9 +18,10 @@ npm i && npm start
 ```
 GET /people
 
-GET /people/id
+GET /people/:id
 
 POST /people
+
 body {
   "name": "example",
   "email": "example",
@@ -30,7 +31,8 @@ body {
   "address": "example"
   }
 
-PUT /people/id
+PUT /people/:id
+
 body {
   "name": "example",
   "email": "example",
@@ -40,9 +42,10 @@ body {
   "address": "example"
 }
 
-DELETE /people/id
+DELETE /people/:id
 
-PATCH /people/id
+PATCH /people/:id
+
 body {
   "name": "example"
   }
@@ -53,27 +56,30 @@ body {
 ```
 GET /discussions
 
-GET /discussions/id
+GET /discussions/:id
 
 POST /discussions
+
 body {
   "participants": [
     "participant-id",
-    "participant-idi"
+    "participant-id"
     ]
   }
 
-PUT /discussions/id
+PUT /discussions/:id
+
 body {
   "participants": [
     "participant-id",
     "participant-id",
-    "participant-idi"
+    "participant-id"
     ]
   }
 
-DELETE /discussions/id
+DELETE /discussions/:id
 ```
 ## Contact
 Lucas Rosa Lollobrigida
+
 lucaslollobrigida@gmail.com
